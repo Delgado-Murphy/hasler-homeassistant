@@ -1,49 +1,60 @@
 # Hasler Radio for Home Assistant
 
-<sub>D E L G A D O &nbsp;<i>&amp;</i>&nbsp; M U R P H Y</sub>
+<sub><i>A Delgado &amp; Murphy restoration</i></sub>
 
-A Home Assistant integration for the **Hasler** internet radio. It talks to the
-radio's own web API on your network: no cloud, no account, no add-on.
-
-## What you get
-
-One device per radio (manufacturer *Delgado & Murphy*, model = the radio's
-variant, software version kept current) with:
-
-| Entity | What it does |
-| --- | --- |
-| `media_player` | Playing / idle / off (standby). Play, stop, next, volume set and up/down, turn on/off (standby and wake). **Sources are the radio's preset keys** (`1 · Radio Swiss Jazz`, …): selecting one presses that key. Title, artist, album, station and cover art come from what the radio plays (radio, YouTube Music, Bluetooth). |
-| `update` | Installed version, the latest release the radio has found and its release notes. Read-only: installing still needs a press on the radio, as always. |
-| `binary_sensor` *Health problem* | On when the radio's own health report fails; lists the failing checks. |
-| `sensor` *Update channel* | The release channel the radio follows. |
-| `sensor` *Software started* | When the radio's software last (re)started. |
-
-The radio is polled locally: status every 5 s, health every minute, software
-every 5 minutes.
+See and control your [Hasler](https://github.com/Delgado-Murphy/hasler) radio
+from Home Assistant. The integration talks to the radio's own API on your
+network: no cloud, no account, no add-on.
 
 ## Install (HACS)
 
-1. HACS → ⋮ → **Custom repositories** → add
-   `https://github.com/Delgado-Murphy/hasler-homeassistant`, type **Integration**.
-2. Find **Hasler Radio** in HACS, **Download**, then restart Home Assistant.
-3. Settings → Devices & services. A radio that announces itself (`_hasler._tcp`)
-   shows up as **Discovered** – click **Add**. Otherwise **Add integration →
-   Hasler Radio** and type `hasler.local` (or the radio's IP), port `8080`.
+1. In Home Assistant, open **HACS**, tap the **⋮** menu (top right) →
+   **Custom repositories**.
+2. Paste `https://github.com/Delgado-Murphy/hasler-homeassistant`, choose the
+   type **Integration**, and press **Add**.
+3. Search HACS for **Hasler Radio**, open it and press **Download**.
+4. Restart Home Assistant (Settings → System → Restart).
+5. Go to **Settings → Devices & services**. Your radio shows up as
+   **Discovered**: press **Add**. If it doesn't, press **Add integration**,
+   choose **Hasler Radio** and type `hasler.local` (or the radio's IP),
+   port `8080`.
 
-If the radio's IP changes, discovery follows it automatically.
+Discovery needs radio software 0.3.8 or later; older radios can be added by
+hand. If the radio's IP address changes, discovery follows it.
 
-Manual install: copy `custom_components/hasler` into your Home Assistant
-`config/custom_components/` and restart.
+Without HACS: copy `custom_components/hasler` into your Home Assistant
+`config/custom_components/` folder and restart.
+
+## What you get
+
+One device per radio, named after its room (the room name from the key page;
+*Hasler* without one), made by *Delgado & Murphy*, with:
+
+| Entity | What it does |
+| --- | --- |
+| Media player | Playing, idle or off (standby). Play, stop, next, volume, turn on and off. **The radio's keys are its sources**: choosing `1 · Radio Swiss Jazz` presses key 1. Shows the title, artist, album, station and cover art of what is playing. |
+| Update *Software* | The installed version, the newest one the radio has found, and its release notes. Read-only: the radio installs updates itself (small ones at night when set to Automatic), and starting one by hand needs a press on the radio. |
+| Binary sensor *Health problem* | On when the radio's own health check fails; the attribute `failing_checks` says which. |
+| Sensor *Update channel* | `stable` or `bench`. |
+| Sensor *Software started* | When the radio's software last started. |
+
+The radio is asked locally: what it plays every 5 seconds, its health every
+minute, its software every 5 minutes.
 
 ## Good to know
 
-- **Don't add Home Assistant's MPD integration for the radio.** The radio uses
-  MPD internally and drives it itself; a second controller fights it (stopping,
-  changing playlists, resetting volume). This integration is the way in.
-- The radio trusts its local network (no login, like its web page). Home
-  Assistant must reach it on port 8080 by the same name or IP you configure.
-- Older radios without `/api/info` work too; they are matched to discovery
-  once they are updated.
+- **Don't add Home Assistant's *Music Player Daemon* integration for the
+  radio**, even if Home Assistant offers it. The radio drives MPD itself and a
+  second controller fights it (stopping, changing playlists, resetting the
+  volume).
+- The radio trusts its home network: there is no login, as on its key page.
+  Home Assistant must reach it on port 8080 by the name or IP you gave it.
+- A held key on the radio can also run a Home Assistant scene, script or light.
+  That is set up on the radio's key page (Settings → This radio → Home
+  Assistant), not here.
+- Not yet shown in Home Assistant: multiroom groups, which Bluetooth phone is
+  playing, and a room name changed after setup (it appears after a restart of
+  Home Assistant).
 
 ## Development
 
@@ -53,6 +64,6 @@ python3.14 -m venv .venv && .venv/bin/pip install -r requirements_test.txt
 HASLER_LIVE_HOST=192.168.1.50 .venv/bin/pytest -q -s tests/test_live.py   # read-only, real radio
 ```
 
-MIT licensed.
+MIT licence - see [LICENSE](LICENSE).
 
 <sub>Delgado &amp; Murphy</sub>

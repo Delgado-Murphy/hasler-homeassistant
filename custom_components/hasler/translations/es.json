@@ -33,7 +33,7 @@
   "entity": {
     "binary_sensor": {
       "health": {
-        "name": "Problema de salud"
+        "name": "Problema de funcionamiento"
       }
     },
     "sensor": {
