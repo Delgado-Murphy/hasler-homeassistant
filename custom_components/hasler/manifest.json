@@ -1,7 +1,13 @@
 {
   "domain": "hasler",
   "name": "Hasler Radio",
-  "codeowners": ["@wmurphy"],
+  "categories": [
+    "media_entertainment.speakers_audio",
+    "media_entertainment.music_radio_services"
+  ],
+  "codeowners": [
+    "@wmurphy"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/Delgado-Murphy/hasler-homeassistant",
   "integration_type": "device",
@@ -9,5 +15,7 @@
   "issue_tracker": "https://github.com/Delgado-Murphy/hasler-homeassistant/issues",
   "requirements": [],
   "version": "0.1.0",
-  "zeroconf": ["_hasler._tcp.local."]
+  "zeroconf": [
+    "_hasler._tcp.local."
+  ]
 }
