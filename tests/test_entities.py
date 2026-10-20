@@ -99,6 +99,23 @@ async def test_media_player_ytm_track_and_standby(
     assert state.attributes["media_artist"] == "Rosalía"
     assert state.attributes["media_album_name"] == "Motomami"
     assert state.attributes["entity_picture"]
+    # No radio art yet: the YouTube thumbnail is the picture.
+    entity = hass.data["entity_components"]["media_player"].get_entity(MP)
+    assert entity.media_image_url == "https://i.ytimg.com/x.jpg"
+
+    status["art"] = "/api/art/current?k=ab12"
+    mock_radio(aioclient_mock, status=status)
+    freezer.tick(timedelta(seconds=6))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert entity.media_image_url == f"{URL}/api/art/current?k=ab12"
+    picture = hass.states.get(MP).attributes["entity_picture"]
+    status["art"] = "/api/art/current?k=cd34"
+    mock_radio(aioclient_mock, status=status)
+    freezer.tick(timedelta(seconds=6))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert hass.states.get(MP).attributes["entity_picture"] != picture   # new k -> refreshed
 
     status = copy.deepcopy(STATUS)
     status.update(standby=True, playing=None, current_key=None)

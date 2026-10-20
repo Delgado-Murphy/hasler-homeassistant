@@ -29,6 +29,7 @@ STATUS = {
     "waiting": False,
     "renderer": None,
     "track": None,
+    "art": None,
     "keys": [
         {"id": "k1", "label": "1", "n": 6, "name": "Rosalia", "source": "ytm"},
         {"id": "k2", "label": "2", "n": 2, "name": "Radio Swiss Jazz", "source": "radio"},

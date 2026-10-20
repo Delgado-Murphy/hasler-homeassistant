@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .api import HaslerError
+from .api import HaslerError, base_url
 from .const import DOMAIN, RENDERER_SOURCES, VOLUME_STEP
 from .coordinator import HaslerConfigEntry, HaslerCoordinator
 from .entity import HaslerEntity
@@ -132,6 +132,14 @@ class HaslerMediaPlayer(HaslerEntity, MediaPlayerEntity):
 
     @property
     def media_image_url(self) -> str | None:
+        # The radio's own cover endpoint ("/api/art/current?k=<hash>"): k changes
+        # with the picture, so the URL (and HA's image cache key) follows it.
+        art = self._status.get("art")
+        if isinstance(art, str) and art:
+            if art.startswith(("http://", "https://")):
+                return art
+            client = self.coordinator.client
+            return base_url(client.host, client.port) + "/" + art.lstrip("/")
         return self._now_playing().get("thumb") or None
 
     @property

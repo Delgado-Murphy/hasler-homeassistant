@@ -16,7 +16,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.hasler.const import DOMAIN
 
-from .conftest import HOST, PORT, RADIO_ID, URL, mock_radio
+from .conftest import HOST, INFO, PORT, RADIO_ID, URL, mock_radio
 
 
 @pytest.fixture(autouse=True)
@@ -25,10 +25,9 @@ def no_setup():
         yield
 
 
-def zeroconf_info(host: str = HOST, radio_id: str | None = RADIO_ID) -> ZeroconfServiceInfo:
-    props = {"name": "Kitchen Hasler", "version": "0.3.5", "variant": "Hasler HAT v1", "api": "1"}
-    if radio_id:
-        props["id"] = radio_id
+def zeroconf_info(host: str = HOST) -> ZeroconfServiceInfo:
+    # What avahi announces: no id/name, only where to ask.
+    props = {"api": "1", "path": "/api/info"}
     return ZeroconfServiceInfo(
         ip_address=ip_address(host), ip_addresses=[ip_address(host)], port=PORT,
         hostname="hasler.local.", type="_hasler._tcp.local.", name="Hasler._hasler._tcp.local.",
@@ -83,7 +82,8 @@ async def test_user_flow_already_configured(
     assert result["reason"] == "already_configured"
 
 
-async def test_zeroconf_discovery(hass: HomeAssistant, radio: AiohttpClientMocker) -> None:
+async def test_zeroconf_discovery(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    mock_radio(aioclient_mock, info={**INFO, "name": "Kitchen Hasler"})
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_ZEROCONF}, data=zeroconf_info()
     )
@@ -96,7 +96,10 @@ async def test_zeroconf_discovery(hass: HomeAssistant, radio: AiohttpClientMocke
     assert result["result"].unique_id == RADIO_ID
 
 
-async def test_zeroconf_updates_host(hass: HomeAssistant, config_entry: MockConfigEntry) -> None:
+async def test_zeroconf_updates_host(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, config_entry: MockConfigEntry
+) -> None:
+    mock_radio(aioclient_mock, url="http://192.168.1.77:8080")
     config_entry.add_to_hass(hass)
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_ZEROCONF}, data=zeroconf_info(host="192.168.1.77")
@@ -106,7 +109,7 @@ async def test_zeroconf_updates_host(hass: HomeAssistant, config_entry: MockConf
     assert config_entry.data[CONF_HOST] == "192.168.1.77"
 
 
-async def test_zeroconf_adopts_hand_added_radio(hass: HomeAssistant) -> None:
+async def test_zeroconf_adopts_hand_added_radio(hass: HomeAssistant, radio: AiohttpClientMocker) -> None:
     entry = MockConfigEntry(domain=DOMAIN, data={CONF_HOST: HOST, CONF_PORT: PORT})
     entry.add_to_hass(hass)
     result = await hass.config_entries.flow.async_init(
@@ -116,8 +119,17 @@ async def test_zeroconf_adopts_hand_added_radio(hass: HomeAssistant) -> None:
     assert entry.unique_id == RADIO_ID
 
 
-async def test_zeroconf_without_id(hass: HomeAssistant) -> None:
+async def test_zeroconf_info_without_id(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    mock_radio(aioclient_mock, info={"name": "Hasler", "api": 1})
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_ZEROCONF}, data=zeroconf_info(radio_id=None)
+        DOMAIN, context={"source": config_entries.SOURCE_ZEROCONF}, data=zeroconf_info()
     )
     assert result["reason"] == "no_id"
+
+
+async def test_zeroconf_unreachable(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    aioclient_mock.get(f"{URL}/api/info", exc=TimeoutError)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_ZEROCONF}, data=zeroconf_info()
+    )
+    assert result["reason"] == "cannot_connect"

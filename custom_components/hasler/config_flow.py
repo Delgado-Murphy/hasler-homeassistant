@@ -92,11 +92,18 @@ class HaslerConfigFlow(ConfigFlow, domain=DOMAIN):
         if isinstance(discovery_info.ip_address, IPv6Address):
             return self.async_abort(reason="not_ipv4")
         props = discovery_info.properties or {}
-        radio_id = props.get("id")
-        if not radio_id:
-            return self.async_abort(reason="no_id")
         host = discovery_info.host
         port = discovery_info.port or DEFAULT_PORT
+        # The announcement carries only api=1 and path=/api/info; who the radio
+        # is comes from /api/info itself.
+        info: dict[str, Any] = {}
+        try:
+            info = await _identify(HaslerClient(async_get_clientsession(self.hass), host, port))
+        except CannotConnect:
+            return self.async_abort(reason="cannot_connect")
+        radio_id = info.get("id") or props.get("id")
+        if not radio_id:
+            return self.async_abort(reason="no_id")
 
         await self.async_set_unique_id(str(radio_id))
         # Same radio, new IP: follow it.
@@ -110,7 +117,7 @@ class HaslerConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_abort(reason="already_configured")
 
         self._host, self._port = host, port
-        self._name = str(props.get("name") or DEFAULT_NAME)
+        self._name = str(info.get("name") or props.get("name") or DEFAULT_NAME)
         self.context["title_placeholders"] = {CONF_NAME: self._name}
         return await self.async_step_zeroconf_confirm()
 
@@ -120,11 +127,6 @@ class HaslerConfigFlow(ConfigFlow, domain=DOMAIN):
         """Ask before adding a discovered radio."""
         assert self._host is not None
         if user_input is not None:
-            client = HaslerClient(async_get_clientsession(self.hass), self._host, self._port)
-            try:
-                await _identify(client)
-            except CannotConnect:
-                return self.async_abort(reason="cannot_connect")
             return self.async_create_entry(
                 title=self._name, data={CONF_HOST: self._host, CONF_PORT: self._port}
             )
