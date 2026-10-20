@@ -1,0 +1,54 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Same container home-assistant/actions/hassfest runs, without a third-party action.
+      - name: Run hassfest
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/github/workspace" ghcr.io/home-assistant/hassfest
+
+  hacs:
+    name: HACS
+    runs-on: ubuntu-latest
+    steps:
+      # The image hacs/action runs; it reads the repository through the GitHub API.
+      - name: Run HACS validation
+        env:
+          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          docker run --rm \
+            -e INPUT_GITHUB_TOKEN \
+            -e INPUT_REPOSITORY="$GITHUB_REPOSITORY" \
+            -e INPUT_CATEGORY=integration \
+            -e REPOSITORY_REF \
+            ghcr.io/hacs/action:main
+
+  tests:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements_test.txt
+      - name: Install
+        run: pip install -r requirements_test.txt
+      - name: Test
+        run: pytest -q

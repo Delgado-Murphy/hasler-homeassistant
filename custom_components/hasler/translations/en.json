@@ -1,0 +1,64 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Add a Hasler radio",
+        "description": "Enter the radio's address. Use the same name or IP you open its web page with (usually hasler.local).",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "hasler.local or the radio's IP address.",
+          "port": "The radio's web page port (8080)."
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Hasler radio found",
+        "description": "Add {name} at {host} to Home Assistant?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach a Hasler radio at that address.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This radio is already set up.",
+      "cannot_connect": "Could not reach the radio.",
+      "no_id": "The radio did not announce an id.",
+      "not_ipv4": "Only IPv4 discovery is supported."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "health": {
+        "name": "Health problem"
+      }
+    },
+    "sensor": {
+      "update_channel": {
+        "name": "Update channel"
+      },
+      "started": {
+        "name": "Software started"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Software"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "The radio refused the command: {error}"
+    },
+    "no_presets": {
+      "message": "The radio has no preset keys to play."
+    },
+    "unknown_source": {
+      "message": "No preset key called {source}."
+    }
+  }
+}

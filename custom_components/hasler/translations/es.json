@@ -1,0 +1,64 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Añadir una radio Hasler",
+        "description": "Introduce la dirección de la radio. Usa el mismo nombre o IP con el que abres su página web (normalmente hasler.local).",
+        "data": {
+          "host": "Host",
+          "port": "Puerto"
+        },
+        "data_description": {
+          "host": "hasler.local o la dirección IP de la radio.",
+          "port": "El puerto de la página web de la radio (8080)."
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Radio Hasler encontrada",
+        "description": "¿Añadir {name} en {host} a Home Assistant?"
+      }
+    },
+    "error": {
+      "cannot_connect": "No se encontró ninguna radio Hasler en esa dirección.",
+      "unknown": "Error inesperado."
+    },
+    "abort": {
+      "already_configured": "Esta radio ya está configurada.",
+      "cannot_connect": "No se pudo conectar con la radio.",
+      "no_id": "La radio no anunció un identificador.",
+      "not_ipv4": "Solo se admite el descubrimiento por IPv4."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "health": {
+        "name": "Problema de salud"
+      }
+    },
+    "sensor": {
+      "update_channel": {
+        "name": "Canal de actualizaciones"
+      },
+      "started": {
+        "name": "Software iniciado"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Software"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "La radio rechazó la orden: {error}"
+    },
+    "no_presets": {
+      "message": "La radio no tiene teclas de presintonía para reproducir."
+    },
+    "unknown_source": {
+      "message": "No hay ninguna tecla de presintonía llamada {source}."
+    }
+  }
+}
