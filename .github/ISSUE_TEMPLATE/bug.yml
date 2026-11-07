@@ -1,0 +1,43 @@
+name: Something wrong in Home Assistant
+description: The radio works on its own, but Home Assistant shows or does the wrong thing.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If the radio itself misbehaves (sound, keys, lamp, updates), please use **Settings → Something's wrong? → Tell the makers** on its key page instead - it sends us everything we need.
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.10.2"
+    validations:
+      required: true
+  - type: input
+    id: integration
+    attributes:
+      label: Integration version
+      description: HACS → Hasler Radio
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: radio
+    attributes:
+      label: Radio software version
+      description: On the key page, Settings → This radio → Updates
+      placeholder: "1.6.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log lines
+      description: Settings → System → Logs, filtered for "hasler". Remove anything private.
+      render: text

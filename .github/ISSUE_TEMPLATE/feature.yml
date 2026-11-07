@@ -1,0 +1,10 @@
+name: Show or control something more
+description: Something the radio knows that you'd like to see or use in Home Assistant.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What you'd like, and what you would do with it
+    validations:
+      required: true
