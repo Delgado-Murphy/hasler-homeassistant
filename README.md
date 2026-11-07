@@ -36,7 +36,7 @@ One device per radio, named after its room (the room name from the key page;
 | Media player | Playing, idle or off (standby). Play, stop, next, volume, turn on and off. **The radio's keys are its sources**: choosing `1 · Radio Swiss Jazz` presses key 1. Shows the title, artist, album, station and cover art of what is playing. |
 | Update *Software* | The installed version, the newest one the radio has found, and its release notes. Read-only: the radio installs updates itself (small ones at night when set to Automatic), and starting one by hand needs a press on the radio. |
 | Binary sensor *Health problem* | On when the radio's own health check fails; the attribute `failing_checks` says which. |
-| Sensor *Update channel* | **Stable** (state `stable`, every radio's default) or **Bench** (state `bench`: development, the makers' own radios first, may break). |
+| Sensor *Update channel* | **Stable** (state `stable`, every radio's default) or **Bench versions** (state `bench`: development, the makers' own radios first, may break). |
 | Sensor *Software started* | When the radio's software last started. |
 
 The radio is asked locally: what it plays every 5 seconds, its health every

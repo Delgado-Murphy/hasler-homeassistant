@@ -12,7 +12,7 @@ is `version` in `custom_components/hasler/manifest.json` and the git tag
 - Docs: a compatibility table (Home Assistant 2025.2.0 or later, tested on
   2026.10.2; the radio's API checked against 1.6.0), why the integration
   keeps port 8080 now that the radio's key page is on port 80, which radio
-  fields are not shown yet, and the channels named **Stable** and **Bench**.
+  fields are not shown yet, and the channels named **Stable** and **Bench versions**.
 - Contributing guide, security policy and issue templates; radio owners are
   pointed to **Tell the makers** on the radio.
 
